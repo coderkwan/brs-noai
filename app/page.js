@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-// Top row figures. `tone` colours the top rule and the number.
-// `href` + `hint` turn a figure into a link.
+// Top row figures. `tone` colours the value. `href` + `hint` turn a figure
+// into a link.
 function StatCard({ label, value, tone = 'neutral', href, hint }) {
-  const num = { neutral: 'text-ink-950', good: 'text-forest-600', bad: 'text-rose-600' }[tone]
+  const num = { neutral: 'text-ink-950', good: 'text-forest-600', bad: 'text-rose-600', warn: 'text-amber-600' }[tone]
   const inner = (
     <>
-      <p className="text-[11px] text-ink-400 uppercase tracking-widest mb-2">{label}</p>
+      <p className="text-xs text-ink-400 uppercase tracking-widest mb-4">{label}</p>
       <p className={`text-3xl font-semibold tracking-tight ${num}`}>{value}</p>
       {hint && (
         <p className="text-xs text-forest-600 font-medium mt-3 flex items-center gap-1">
@@ -34,66 +34,39 @@ const NAV = [
 
 export default function Dashboard() {
   const [report, setReport] = useState(null)
-  const [today, setToday] = useState('')
 
   useEffect(() => {
     fetch('/api/report').then(r => r.json()).then(setReport)
-    setToday(new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))
   }, [])
 
   return (
     <div className="space-y-10">
       {/* Masthead */}
-      <div className="border-b-2 border-ink-950 pb-5 flex items-end justify-between">
-        <div>
-          <p className="text-xs font-medium text-forest-600 uppercase tracking-[0.2em] mb-2">Bookshop Rental System</p>
-          <h1 className="text-4xl font-semibold text-ink-950 tracking-tight">Dashboard</h1>
-        </div>
-        <div className="text-right">
-          <p className="font-mono text-sm text-ink-600">{today || '—'}</p>
-          <p className="text-xs text-ink-400 mt-1">
-            {report ? `${report.activeRentals} active · ${report.overdueCount} overdue` : 'Loading…'}
-          </p>
-        </div>
+      <div>
+        <h1 className="text-4xl font-semibold text-ink-950 tracking-tight">Dashboard</h1>
+        <p className="text-sm text-ink-400 mt-2">Overview of your bookshop rental system</p>
       </div>
 
       {/* Figures */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <StatCard label="Total books" value={report ? report.totalBooks : '—'} />
         <StatCard label="Available now" value={report ? report.totalAvailable : '—'} tone="good" />
         <StatCard label="Active rentals" value={report ? report.activeRentals : '—'} href="/rentals" hint="View list" />
         <StatCard label="Overdue" value={report ? report.overdueCount : '—'} tone={report?.overdueCount > 0 ? 'bad' : 'neutral'} />
+        <StatCard label="Fines collected" value={report ? `R${report.totalFinesCollected.toFixed(2)}` : '—'} />
+        <StatCard label="Fines outstanding" value={report ? `R${report.totalFinesOutstanding.toFixed(2)}` : '—'} tone={report?.totalFinesOutstanding > 0 ? 'warn' : 'neutral'} />
       </div>
 
-      {/* Fines */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white border border-ink-100 p-5">
-          <p className="text-[11px] text-ink-400 uppercase tracking-widest mb-2">Fines collected</p>
-          <p className="text-3xl font-semibold text-ink-950 tracking-tight">{report ? `R${report.totalFinesCollected.toFixed(2)}` : '—'}</p>
-        </div>
-        <div className="bg-white border border-ink-100 p-5">
-          <p className="text-[11px] text-ink-400 uppercase tracking-widest mb-2">Fines outstanding</p>
-          <p className={`text-3xl font-semibold tracking-tight ${report?.totalFinesOutstanding > 0 ? 'text-amber-600' : 'text-ink-950'}`}>
-            {report ? `R${report.totalFinesOutstanding.toFixed(2)}` : '—'}
-          </p>
-        </div>
-      </div>
-
-      {/* Actions — tinted tiles to signal they're clickable */}
-      <div>
-        <p className="text-[11px] text-ink-400 uppercase tracking-widest mb-3">Go to</p>
+      {/* Quick actions */}
+      <div className="bg-white border border-ink-100 p-6">
+        <p className="font-semibold text-ink-950 mb-4">Quick Actions</p>
         <div className="grid grid-cols-4 gap-4">
           {NAV.map(card => (
             <Link key={card.href} href={card.href}
-              className="group bg-forest-50 border border-forest-100 p-5 min-h-[128px] flex flex-col justify-between hover:bg-forest-100 hover:border-forest-400 transition-colors">
-              <div className="flex items-start justify-between">
-                <span className="text-2xl">{card.icon}</span>
-                <span className="text-forest-400 group-hover:text-forest-700 transition-transform group-hover:translate-x-1">→</span>
-              </div>
-              <div>
-                <p className="font-medium text-sm text-ink-950">{card.title}</p>
-                <p className="text-xs text-ink-400 mt-0.5">{card.desc}</p>
-              </div>
+              className="group border border-dashed border-ink-200 p-6 flex flex-col items-center text-center gap-2 hover:border-forest-400 hover:bg-forest-50 transition-colors">
+              <span className="text-2xl">{card.icon}</span>
+              <p className="font-medium text-sm text-ink-950">{card.title}</p>
+              <p className="text-xs text-ink-400">{card.desc}</p>
             </Link>
           ))}
         </div>

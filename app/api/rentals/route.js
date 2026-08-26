@@ -1,5 +1,7 @@
-import { activeRentals } from '@/lib/db'
+import { activeRentals, allRentals } from '@/lib/db'
 
-export async function GET() {
-  return Response.json(activeRentals())
+export async function GET(request) {
+  const { searchParams } = new URL(request.url)
+  const rentals = searchParams.get('all') ? allRentals() : activeRentals()
+  return Response.json(rentals)
 }

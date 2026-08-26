@@ -4,12 +4,7 @@ import { useEffect, useState } from 'react'
 
 const CONDITIONS = ['New', 'Good', 'Fair', 'Poor']
 
-const EMPTY_FORM = { isbn: '', title: '', author: '', edition: '', condition: 'Good', codes: '' }
-
-// One QR code per line → an array of codes.
-function parseCodes(text) {
-  return text.split('\n').map(c => c.trim()).filter(Boolean)
-}
+const EMPTY_FORM = { isbn: '', title: '', author: '', edition: '', condition: 'Good', startCode: '', quantity: '1' }
 
 export default function InventoryPage() {
   const [books, setBooks] = useState([])
@@ -38,7 +33,7 @@ export default function InventoryPage() {
     const res = await fetch('/api/inventory', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, codes: parseCodes(form.codes) }),
+      body: JSON.stringify({ ...form, quantity: Number(form.quantity) }),
     })
     const data = await res.json()
     setLoading(false)
@@ -145,18 +140,33 @@ export default function InventoryPage() {
                 {CONDITIONS.map(c => <option key={c}>{c}</option>)}
               </select>
             </div>
-            <div>
-              <label className="block text-xs text-ink-400 mb-1">QR codes (one per line)</label>
-              <textarea
-                value={form.codes}
-                onChange={e => setForm(p => ({ ...p, codes: e.target.value }))}
-                placeholder={'EJ-01\nEJ-02\nEJ-03'}
-                rows={4}
-                required
-                className="w-full px-3 py-2 text-sm bg-ink-50 border border-ink-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-400 font-mono placeholder:text-ink-300 placeholder:font-sans"
-              />
-              <p className="text-xs text-ink-400 mt-1">One code per physical copy — {parseCodes(form.codes).length} entered.</p>
+            <div className="grid grid-cols-[1fr_100px] gap-3">
+              <div>
+                <label className="block text-xs text-ink-400 mb-1">QR code (first copy)</label>
+                <input
+                  type="text"
+                  value={form.startCode}
+                  onChange={e => setForm(p => ({ ...p, startCode: e.target.value }))}
+                  placeholder="EJ-01"
+                  required
+                  className="w-full px-3 py-2 text-sm bg-ink-50 border border-ink-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-400 font-mono placeholder:text-ink-300 placeholder:font-sans"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-ink-400 mb-1">Quantity</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.quantity}
+                  onChange={e => setForm(p => ({ ...p, quantity: e.target.value }))}
+                  required
+                  className="w-full px-3 py-2 text-sm bg-ink-50 border border-ink-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-400"
+                />
+              </div>
             </div>
+            <p className="text-xs text-ink-400 -mt-2">
+              Scan the first copy — the rest are numbered automatically (e.g. EJ-01, EJ-02, EJ-03…).
+            </p>
             <button
               type="submit"
               disabled={loading}
