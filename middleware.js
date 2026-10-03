@@ -7,12 +7,15 @@ import {NextResponse} from 'next/server'
 import {verifySession} from './lib/auth'
 
 const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/logout']
+const DEBUG_PASSTHROUGH = process.env.MIDDLEWARE_DEBUG === '1'
 
 function isPublic(pathname) {
     return PUBLIC_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))
 }
 
 export async function middleware(request) {
+    if (DEBUG_PASSTHROUGH) return NextResponse.next()
+
     const {pathname} = request.nextUrl
 
     if (isPublic(pathname)) return NextResponse.next()
