@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'BRS — Bookshop Rental System',
+  title: 'Manzini Central High School — Bookshop Rental System',
   description: 'School textbook rental management',
 }
 
