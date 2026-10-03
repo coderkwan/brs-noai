@@ -1,6 +1,9 @@
+import { checkApiSession } from '@/lib/guard'
 import { listStudents, studentHistory, addStudent, updateStudent, deleteStudent } from '@/lib/db'
 
 export async function GET(request) {
+  const { response } = await checkApiSession()
+  if (response) return response
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
   if (id) {
@@ -11,18 +14,24 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const { response } = await checkApiSession()
+  if (response) return response
   const body = await request.json()
   const result = addStudent(body)
   return Response.json(result, { status: result.ok ? 200 : 400 })
 }
 
 export async function PUT(request) {
+  const { response } = await checkApiSession()
+  if (response) return response
   const body = await request.json()
   const result = updateStudent(body)
   return Response.json(result, { status: result.ok ? 200 : 400 })
 }
 
 export async function DELETE(request) {
+  const { response } = await checkApiSession()
+  if (response) return response
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
   const result = deleteStudent(id)

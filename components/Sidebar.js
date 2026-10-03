@@ -1,6 +1,6 @@
 // components/Sidebar.js
 'use client'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 const LINKS = [
   ['/', 'Dashboard'],
@@ -13,6 +13,16 @@ const LINKS = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  // The login page has no nav/sign-out.
+  if (pathname === '/login') return null
+
+  async function signOut() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <aside className="w-64 shrink-0 bg-white border-r border-ink-100 flex flex-col min-h-screen">
@@ -42,6 +52,14 @@ export default function Sidebar() {
           )
         })}
       </nav>
+
+      <div className="px-3 py-4 border-t border-ink-100">
+        <button
+          onClick={signOut}
+          className="w-full text-left px-3 py-2 text-sm text-ink-600 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
+          Sign out
+        </button>
+      </div>
     </aside>
   )
 }
