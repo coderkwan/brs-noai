@@ -34,5 +34,4 @@ export async function middleware(request) {
 export const config = {
     // Run on everything except Next internals and static assets.
     matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
-    runtime: "nodejs"
 }
