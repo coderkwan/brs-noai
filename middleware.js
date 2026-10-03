@@ -4,7 +4,7 @@
 // the Web Crypto-based helpers in lib/auth.js.
 
 import {NextResponse} from 'next/server'
-import {verifySession} from '@/lib/auth'
+import {verifySession} from './lib/auth'
 
 const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/logout']
 
